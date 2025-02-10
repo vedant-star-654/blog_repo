@@ -19,4 +19,9 @@ class Post extends Model
     {
         return $this->hasMany(Comment::class);
     }
+
+    public function sharedPosts()
+    {
+        return $this->hasMany(SharedPost::class, 'shared_to');
+    }
 }

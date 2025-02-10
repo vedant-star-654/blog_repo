@@ -36,49 +36,12 @@
                 <td>
                     <!-- Owners can only view or share -->
                     <a href="{{ route('posts.show', $post->id) }}" class="btn btn-primary btn-sm">View</a>
-
                     @if(auth()->user()->role == 'owner' && $canShare)
-                        <!-- Share Button to Open Modal -->
-                        <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#shareModal{{ $post->id }}">
-                            Share
-                        </button>
-
-                        <!-- Share Modal -->
-                        <div class="modal fade" id="shareModal{{ $post->id }}" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Share Post: {{ $post->title }}</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form action="{{ route('posts.share', $post->id) }}" method="POST">
-                                            @csrf
-                                            <p>Select Owners to Share With:</p>
-                                            <div class="form-group">
-                                                @foreach($owners as $owner)
-                                                    @if($owner->id != auth()->id()) <!-- Exclude logged-in owner -->
-                                                        <div class="form-check">
-                                                            <input class="form-check-input" type="checkbox" name="shared_to[]" value="{{ $owner->id }}" id="owner{{ $post->id }}{{ $owner->id }}">
-                                                            <label class="form-check-label" for="owner{{ $post->id }}{{ $owner->id }}">
-                                                                {{ $owner->name }}
-                                                            </label>
-                                                        </div>
-                                                    @endif
-                                                @endforeach
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="submit" class="btn btn-success">Share</button>
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#sharePostModal-{{ $post->id }}">
+                        Share
+                    </button>
                     @endif
+
 
                     <!-- Only post owners or admins can edit/delete -->
                     @if(auth()->user()->id == $post->user_id || auth()->user()->role == 'admin')
@@ -91,14 +54,49 @@
                             </button>
                         </form>
                     @endif
+
+
+
                 </td>
             </tr>
             @endforeach
         </tbody>
     </table>
-</div>
+    @foreach($posts as $post)
+<!-- Modal -->
+<div class="modal fade" id="sharePostModal-{{ $post->id }}" tabindex="-1" aria-labelledby="sharePostModalLabel-{{ $post->id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sharePostModalLabel-{{ $post->id }}">Share Post: {{ $post->title }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="shareForm-{{ $post->id }}" action="{{ route('posts.share', $post->id) }}" method="POST">
+                    @csrf
 
-<!-- Bootstrap & jQuery for Modal Functionality -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+                    <p>Select owners to share this post:</p>
+
+                    @foreach($owners as $owner)
+                        @if($owner->id != auth()->id()) <!-- Exclude the logged-in owner -->
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="shared_to[]" value="{{ $owner->id }}" id="owner-{{ $post->id }}-{{ $owner->id }}">
+                                <label class="form-check-label" for="owner-{{ $post->id }}-{{ $owner->id }}">
+                                    {{ $owner->name }}
+                                </label>
+                            </div>
+                        @endif
+                    @endforeach
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Share</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endforeach
+</div>
 @endsection

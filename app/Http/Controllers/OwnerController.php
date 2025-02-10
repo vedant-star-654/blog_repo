@@ -16,15 +16,27 @@ class OwnerController extends Controller
         $user = Auth::user(); // Define the user
 
         // Fetch shared posts for the logged-in owner
-        $sharedPosts = SharedPost::where('shared_to', $user->id)->with('post', 'shared_to')->get();
+        $sharedPosts = SharedPost::where('shared_to', $user->id)->with('post', 'shared_too')->get();
 
         // Count the shared posts
-        $sharedPostsCount = SharedPost::where('shared_to', $user->id)->count();
 
-        return view('owner.dashboard', compact('sharedPosts', 'sharedPostsCount'));
+
+        return view('owner.dashboard', compact('sharedPosts'));
     }
 
+    public function ShowdashboardCount()
+    {
+        $user = auth()->user();
 
+        // Admins see all shared posts, owners see only those shared to them
+        if ($user->role === 'admin') {
+            $sharedPostCount = SharedPost::count();
+        } else {
+            $sharedPostCount = SharedPost::where('shared_to', $user->id)->count();
+        }
+
+        return view('owner.dashboard', compact('sharedPostCount'));
+    }
 
     /**
      * Show the form for creating a new resource.

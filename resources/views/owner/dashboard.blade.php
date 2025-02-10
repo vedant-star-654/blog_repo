@@ -25,7 +25,7 @@
                     <i class="fas fa-share-alt fa-3x me-3"></i>
                     <div>
                         <h5 class="card-title">Shared Posts</h5>
-                        <p class="card-text fs-4">{{ Auth::user()->sharedPosts->count() }}</p>
+                        <p class="card-text fs-4">{{ $sharedPostCount }}</p>
                     </div>
                 </div>
             </div>

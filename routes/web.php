@@ -35,6 +35,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 // Owner Dashboard - Restricted to Owners
 Route::middleware(['auth', 'owner'])->group(function () {
     Route::get('/owner/dashboard', [OwnerController::class, 'index'])->name('owner.dashboard');
+    Route::get('/owner/dashboard', [OwnerController::class, 'ShowDashboardCount'])->name('owner.dashboard');
 });
 
 // Post & Comment Routes - Accessible to Logged-in Users
