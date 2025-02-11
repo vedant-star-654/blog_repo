@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\UserRegisteredMail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -23,15 +25,34 @@ class AuthController extends Controller
             'role' => 'required|in:admin,owner'
         ]);
 
-        User::create([
+        // Create User
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role
         ]);
 
-        return redirect()->route('login')->with('success', 'Registration successful. Please login.');
+        // Debugging: Check if user is created
+        if (!$user) {
+            return back()->with('error', 'User could not be created.');
+        }
+
+        // Debugging: Check if email is available
+        if (!$user->email) {
+            return back()->with('error', 'User email is missing.');
+        }
+
+        // Send Welcome Email
+        try {
+            Mail::to($user->email)->send(new UserRegisteredMail($user));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Mail could not be sent: ' . $e->getMessage());
+        }
+
+        return redirect()->route('login')->with('success', 'Registration successful. A confirmation email has been sent to your email address.');
     }
+
 
     public function showLogin()
     {

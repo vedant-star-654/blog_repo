@@ -6,6 +6,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\PostController;
+use App\Mail\UserRegisteredMail;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,4 +49,19 @@ Route::middleware(['auth'])->group(function () {
     ->name('posts.share')
     ->middleware(['auth', 'owner']);
 
+    Route::get('/posts/search', [PostController::class, 'search'])->name('posts.search');
+
+
 });
+
+Route::get('/send-mail', function () {
+    $user = Auth::user(); // Ensure user is logged in
+
+    if (!$user) {
+        return "No authenticated user!";
+    }
+
+    Mail::to($user->email)->send(new UserRegisteredMail($user));
+
+    return "Mail sent successfully to " . $user->email;
+})->middleware('auth');

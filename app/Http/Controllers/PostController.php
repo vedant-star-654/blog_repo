@@ -154,7 +154,16 @@ class PostController extends Controller
         return back()->with('success', 'Post shared successfully!');
     }
 
+    public function search(Request $request)
+    {
+        $query = $request->input('search');
 
+        $posts = Post::where('title', 'LIKE', "%$query%")
+                     ->orWhere('content', 'LIKE', "%$query%")
+                     ->get();
+
+        return view('posts.search-results', compact('posts'));
+    }
 
 
 
